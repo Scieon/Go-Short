@@ -1,13 +1,27 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
+	"github.com/spf13/viper"
+
+	"playground/Go-Short/api/service"
+)
+
+const (
+	defaultConfigPath = "./conf/conf.toml"
 )
 
 func main() {
-	logger, _ := zap.NewDevelopment()
-	sugar := logger.Sugar()
+	err := readConfig(defaultConfigPath)
+	logger := service.GetLogger()
+
+	if err != nil {
+		fmt.Printf("read config error: %s", err)
+		return
+	}
 
 	r := gin.Default()
 
@@ -17,6 +31,23 @@ func main() {
 		})
 	})
 
-	sugar.Info("Starting server")
-	r.Run()
+	ginPort := fmt.Sprintf(":%d", viper.GetInt64("server.port"))
+	logger.Info("Starting server")
+
+	r.Run(ginPort)
+}
+
+func readConfig(filePath string) error {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	viper.SetConfigType("toml")
+
+	viper.SetDefault("server.host", "127.0.0.1")
+	viper.SetDefault("server.port", "8080")
+	viper.SetDefault("redis.port", "6379")
+	return viper.ReadConfig(f)
 }
