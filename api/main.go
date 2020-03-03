@@ -6,8 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-
-	"playground/Go-Short/api/service"
+	"github.com/Go-Short/api/service"
 )
 
 const (

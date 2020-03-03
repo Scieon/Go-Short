@@ -1,4 +1,4 @@
-module playground/Go-Short/api
+module github.com/Go-Short/api
 
 go 1.13
 
