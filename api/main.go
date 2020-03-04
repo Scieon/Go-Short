@@ -1,17 +1,31 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
-	"os"
-
+	"github.com/Go-Short/api/service"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"github.com/Go-Short/api/service"
+	"io/ioutil"
+	"net/http"
+	"os"
 )
 
 const (
 	defaultConfigPath = "./conf/conf.toml"
 )
+
+type Url struct {
+	Url string      `json:"url"`
+}
+
+func (u *Url) Valid() bool {
+	valid := true
+
+	// perform validation
+	return valid
+}
 
 func main() {
 	err := readConfig(defaultConfigPath)
@@ -25,9 +39,48 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, "ok")
+	})
+
+	r.GET("/:id", func(c *gin.Context) {
+		encodedID := c.Param("id")
+		originalURL, err := service.GetOriginalURL(encodedID)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		c.Redirect(http.StatusPermanentRedirect, originalURL)
+		c.Abort()
+	})
+
+	r.POST("/", func(c *gin.Context) {
+		// retrieve url
+		rawRequestBody, _ := ioutil.ReadAll(c.Request.Body)
+
+		var requestBody Url
+		decoder := json.NewDecoder(bytes.NewReader(rawRequestBody))
+		decoder.DisallowUnknownFields()
+		err := decoder.Decode(&requestBody)
+
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		// validate
+
+		// shorten
+		shortUrl := service.ShortenURL(requestBody.Url)
+
+		// return JSON
 		c.JSON(200, gin.H{
-			"message": "pong",
+			"url": shortUrl,
 		})
+		return
 	})
 
 	ginPort := fmt.Sprintf(":%d", viper.GetInt64("server.port"))

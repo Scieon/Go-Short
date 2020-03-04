@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"math"
 	"strings"
 )
@@ -16,11 +17,22 @@ func ShortenURL(url string) string {
 
 	// incr id
 	encodedID := Encode(redisClient.id)
-	newID := redisClient.client.HIncrBy("urls", encodedID, 1)
-	redisClient.client.HSet("urls", newID.Val(), url)
+	redisClient.id++
+	redisClient.client.HSet("urls", encodedID, url)
 
 	shortUrl := "localhost:8080/" + encodedID
 	return shortUrl
+}
+
+func GetOriginalURL(encodedID string) (string, error) {
+	redisClient := GetRedisClient()
+
+	originalURL := redisClient.client.HGet("urls", encodedID)
+
+	if originalURL.Val() == "" {
+		return "", errors.New("invalid id")
+	}
+	return originalURL.Val(), nil
 }
 
 func Encode(num int) string {

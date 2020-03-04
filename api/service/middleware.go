@@ -28,7 +28,7 @@ func GetRedisClient() *RedisClient {
 				Password: "", // no password set
 				DB:       0,  // use default DB
 			}),
-			id: 1,
+			id: 100,
 		}
 	}
 	return redisClient
