@@ -39,19 +39,24 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, "ok")
+		c.JSON(http.StatusOK, gin.H{"msg" : "ok"})
 	})
 
 	r.GET("/:id", func(c *gin.Context) {
+		logger := service.GetLogger()
+
 		encodedID := c.Param("id")
 		originalURL, err := service.GetOriginalURL(encodedID)
 
 		if err != nil {
+			logger.Info("could not locate original url")
 			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		c.Redirect(http.StatusPermanentRedirect, originalURL)
+		logger.Infof("original URL: %s", originalURL)
+
+		c.Redirect(http.StatusFound, "http://" + originalURL)
 		c.Abort()
 	})
 
