@@ -15,24 +15,42 @@ var (
 func ShortenURL(url string) string {
 	redisClient := GetRedisClient()
 
-	// incr id
-	encodedID := Encode(redisClient.id)
-	redisClient.id++
-	redisClient.client.HSet("urls", encodedID, url)
+	// need to get by URL
+	existingID := getEncodedID(url)
 
-	shortUrl := "localhost:8080/" + encodedID
-	return shortUrl
+ 	// we already have this URL stored
+	if existingID != "" {
+		logger.Infof("%s was already stored", url)
+		return "localhost:8080/" + existingID
+	}
+
+	// storing new url means incrementing id
+	newEncodedID := Encode(redisClient.id)
+
+	redisClient.id++
+
+	redisClient.client.HSet(newEncodedID, "url", url)
+	redisClient.client.HSet(url, "id", newEncodedID)
+	return "localhost:8080/" + newEncodedID
 }
 
 func GetOriginalURL(encodedID string) (string, error) {
 	redisClient := GetRedisClient()
 
-	originalURL := redisClient.client.HGet("urls", encodedID)
+	originalURL := redisClient.client.HGet(encodedID, "url")
 
 	if originalURL.Val() == "" {
 		return "", errors.New("invalid id")
 	}
 	return originalURL.Val(), nil
+}
+
+func getEncodedID(storedURL string) string {
+	redisClient := GetRedisClient()
+
+	encodedID := redisClient.client.HGet(storedURL, "id")
+
+	return encodedID.Val()
 }
 
 func Encode(num int) string {

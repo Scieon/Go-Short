@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 )
 
 const (
@@ -54,9 +55,13 @@ func main() {
 			return
 		}
 
+		if strings.Index(originalURL, "http") == -1 {
+			originalURL = "https://" + originalURL
+		}
+
 		logger.Infof("original URL: %s", originalURL)
 
-		c.Redirect(http.StatusFound, "http://" + originalURL)
+		c.Redirect(http.StatusFound, originalURL)
 		c.Abort()
 	})
 
