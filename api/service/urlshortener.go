@@ -29,15 +29,15 @@ func ShortenURL(url string) string {
 
 	redisClient.id++
 
-	redisClient.client.HSet(newEncodedID, "url", url)
-	redisClient.client.HSet(url, "id", newEncodedID)
+	redisClient.Client.HSet(newEncodedID, "url", url)
+	redisClient.Client.HSet(url, "id", newEncodedID)
 	return "localhost:8080/" + newEncodedID
 }
 
 func GetOriginalURL(encodedID string) (string, error) {
 	redisClient := GetRedisClient()
 
-	originalURL := redisClient.client.HGet(encodedID, "url")
+	originalURL := redisClient.Client.HGet(encodedID, "url")
 
 	if originalURL.Val() == "" {
 		return "", errors.New("invalid id")
@@ -48,7 +48,7 @@ func GetOriginalURL(encodedID string) (string, error) {
 func getEncodedID(storedURL string) string {
 	redisClient := GetRedisClient()
 
-	encodedID := redisClient.client.HGet(storedURL, "id")
+	encodedID := redisClient.Client.HGet(storedURL, "id")
 
 	return encodedID.Val()
 }

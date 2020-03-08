@@ -10,8 +10,8 @@ import (
 )
 
 type RedisClient struct {
-	client *redis.Client
-	id int
+	Client *redis.Client
+	id     int
 }
 
 var redisClient *RedisClient
@@ -23,7 +23,7 @@ func GetRedisClient() *RedisClient {
 		redisAddr := fmt.Sprintf("localhost:%d", redisPort)
 
 		redisClient = &RedisClient{
-			client: redis.NewClient(&redis.Options{
+			Client: redis.NewClient(&redis.Options{
 				Addr:     redisAddr,
 				Password: "", // no password set
 				DB:       0,  // use default DB

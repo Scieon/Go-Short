@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -22,10 +23,18 @@ type Url struct {
 }
 
 func (u *Url) Valid() bool {
-	valid := true
+	logger := service.GetLogger()
 
 	// perform validation
-	return valid
+	_, err := url.ParseRequestURI(u.Url)
+
+	if err != nil {
+		logger.Errorf(err.Error())
+		return false
+	}
+
+
+	return true
 }
 
 func main() {
@@ -82,6 +91,12 @@ func main() {
 		}
 
 		// validate
+		if !requestBody.Valid() {
+			c.JSON(400, gin.H{
+				"error": "invalid url format",
+			})
+			return
+		}
 
 		// shorten
 		shortUrl := service.ShortenURL(requestBody.Url)
