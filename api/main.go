@@ -41,6 +41,11 @@ func main() {
 	err := readConfig(defaultConfigPath)
 	logger := service.GetLogger()
 
+	redisPort := viper.GetInt64("redis.port")
+	redisHost := viper.GetString("redis.host")
+	redisAddr := fmt.Sprintf("%s:%d", redisHost, redisPort)
+	service.InitializeRedisClient(redisAddr)
+
 	if err != nil {
 		fmt.Printf("read config error: %s", err)
 		return

@@ -9,7 +9,6 @@ import (
 var testURL = "http://www.test.com"
 var testEncodedID = "1C"
 
-// todo test is currently fragile
 func TestShortenNewURL(t *testing.T) {
 	s, err := miniredis.Run()
 	if err != nil {
@@ -18,8 +17,7 @@ func TestShortenNewURL(t *testing.T) {
 	defer s.Close()
 
 	// setup redis addr
-	redisClient := GetRedisClient()
-	redisClient.Client.Options().Addr = s.Addr()
+	InitializeRedisClient(s.Addr())
 
 	shortenedURL := ShortenURL(testURL)
 
@@ -35,8 +33,7 @@ func TestShortenExistingURL(t *testing.T) {
 	defer s.Close()
 
 	// setup redis addr
-	redisClient := GetRedisClient()
-	redisClient.Client.Options().Addr = s.Addr()
+	InitializeRedisClient(s.Addr())
 
 	shortenedURL := ShortenURL(testURL)
 	shortenedURL = ShortenURL(testURL)
@@ -62,8 +59,7 @@ func TestGetOriginalURL(t *testing.T) {
 	defer s.Close()
 
 	// setup redis addr
-	redisClient := GetRedisClient()
-	redisClient.Client.Options().Addr = s.Addr()
+	InitializeRedisClient(s.Addr())
 
 	s.HSet(testEncodedID, "url", testURL)
 	url, err := GetOriginalURL(testEncodedID)
@@ -80,8 +76,7 @@ func TestGetEncodedID(t *testing.T) {
 	defer s.Close()
 
 	// setup redis addr
-	redisClient := GetRedisClient()
-	redisClient.Client.Options().Addr = s.Addr()
+	InitializeRedisClient(s.Addr())
 
 	s.HSet(testURL, "id", testEncodedID)
 	id := getEncodedID(testURL)

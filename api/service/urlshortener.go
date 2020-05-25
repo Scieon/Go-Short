@@ -21,7 +21,7 @@ func ShortenURL(url string) string {
  	// we already have this URL stored
 	if existingID != "" {
 		logger.Infof("%s was already stored", url)
-		return "localhost:8080/" + existingID
+		return GetBaseURL() + existingID
 	}
 
 	// storing new url means incrementing id
@@ -31,7 +31,7 @@ func ShortenURL(url string) string {
 
 	redisClient.Client.HSet(newEncodedID, "url", url)
 	redisClient.Client.HSet(url, "id", newEncodedID)
-	return "localhost:8080/" + newEncodedID
+	return GetBaseURL() + newEncodedID
 }
 
 func GetOriginalURL(encodedID string) (string, error) {

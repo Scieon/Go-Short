@@ -2,10 +2,8 @@ package service
 
 import (
 	"fmt"
-
 	"github.com/go-redis/redis/v7"
 	"github.com/spf13/viper"
-
 	"go.uber.org/zap"
 )
 
@@ -17,20 +15,26 @@ type RedisClient struct {
 var redisClient *RedisClient
 var logger *zap.SugaredLogger
 
-func GetRedisClient() *RedisClient {
-	if redisClient == nil {
-		redisPort := viper.GetInt64("redis.port")
-		redisAddr := fmt.Sprintf("localhost:%d", redisPort)
-
-		redisClient = &RedisClient{
-			Client: redis.NewClient(&redis.Options{
-				Addr:     redisAddr,
-				Password: "", // no password set
-				DB:       0,  // use default DB
-			}),
-			id: 100,
-		}
+func InitializeRedisClient(addr string) {
+	redisClient = &RedisClient{
+		Client: redis.NewClient(&redis.Options{
+			Addr:     addr,
+			Password: "", // no password set
+			DB:       0,  // use default DB
+		}),
+		id: 100,
 	}
+}
+
+func GetBaseURL() string {
+	host := viper.GetString("server.host")
+	port := viper.GetString("server.port")
+
+	url := fmt.Sprintf("%s:%s/", host, port)
+	return url
+}
+
+func GetRedisClient() *RedisClient {
 	return redisClient
 }
 
