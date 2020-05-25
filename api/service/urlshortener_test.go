@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/alicebob/miniredis/v2"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -20,7 +21,7 @@ func TestShortenNewURL(t *testing.T) {
 	InitializeRedisClient(s.Addr())
 
 	shortenedURL := ShortenURL(testURL)
-
+	fmt.Println(s.Addr())
 	assert.Equal(t, "localhost:8080/1C", shortenedURL)
 }
 

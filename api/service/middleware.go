@@ -27,6 +27,9 @@ func InitializeRedisClient(addr string) {
 }
 
 func GetBaseURL() string {
+	viper.SetDefault("server.host", "localhost")
+	viper.SetDefault("server.port", "8080")
+
 	host := viper.GetString("server.host")
 	port := viper.GetString("server.port")
 
